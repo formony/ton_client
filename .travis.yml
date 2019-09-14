@@ -2,7 +2,7 @@ language: python
 python:
   - "3.7"
 before_install:
-  sudo apt-get install -y zlib1g libssl1.1
+  sudo apt-get install -y zlib1g libssl
 install:
   - make setup-all
   - pipenv install coverage
