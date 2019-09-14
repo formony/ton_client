@@ -1,0 +1,15 @@
+language: python
+python:
+  - "3.7"
+before_install:
+  sudo apt-get install -y zlib1g libssl1.1
+install:
+  - make setup-all
+  - pipenv install coverage
+  - pipenv install codecov
+script:
+  - python setup.py flake8
+  - coverage run setup.py test
+
+after_success:
+  - codecov
