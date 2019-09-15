@@ -18,7 +18,7 @@ In case of incompatibility with your distro it's needed to build TON fullnode's 
 Check [here](https://github.com/formony/ton_client/tree/master/docs/ton.md) for fullnode's build instructions.
 Don't forget to copy library file to ton_client/distlib/linux/libtonlibjon.so or ton_client/distlib/darwin/libtonlibjon.dylib
 
-ton_client hasn't published to PyPI yet so build and install it on your own:
+ton_client hasn't been published to PyPI yet so build and install it on your own:
 
 `git clone https://github.com/formony/ton_client.git`
 
