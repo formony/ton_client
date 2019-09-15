@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import asyncio
 
 from ton_client.client import TonlibClient
 
