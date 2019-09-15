@@ -22,13 +22,14 @@ jobs:
           key: ton_client-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           paths:
             - ".venv"
+
       - run:
           command: |
             python setup.py flake8
       - store_test_results:
           path: flake8-results
       - store_artifacts:
-          path: test-results
+          path: flake8-results
           destination: fr1
 
       - run:
