@@ -1,0 +1,45 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/ton_client
+    docker:
+      - image: circleci/python:3.7-buster
+    steps:
+      - run:
+          command: |
+            sudo apt-get update -q
+            sudo apt-get install -y zlib1g
+            sudo apt-get install -y openssl
+      - checkout
+      - restore_cache:
+          key: ton_client-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - run:
+          command: |
+            make setup-all
+            pipenv install coverage
+            pipenv install codecov
+      - save_cache:
+          key: ton_client-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ".venv"
+      - run:
+          command: |
+            python setup.py flake8
+      - store_test_results:
+          path: flake8-results
+      - store_artifacts:
+          path: test-results
+          destination: fr1
+
+      - run:
+          command: |
+            python setup.py test
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+          destination: tr1
+
+      - run:
+          command: |
+            coverage run setup.py test
