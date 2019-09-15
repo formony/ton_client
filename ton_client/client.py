@@ -5,6 +5,8 @@ import socket
 import logging
 from concurrent.futures import ThreadPoolExecutor
 import threading
+import asyncio
+import functools
 from functools import wraps
 
 import ujson as json
@@ -16,12 +18,18 @@ logger = logging.getLogger(__name__)
 def threaded(f):
     @wraps(f)
     def wrapper(self, *args, **kwds):
-        return self._executor.submit(f, self, *args, **kwds)
+        if self._style == 'futures':
+            return self._executor.submit(f, self, *args, **kwds)
+        if self._style == 'asyncio':
+            loop = asyncio.get_event_loop()
+            return loop.run_in_executor(self._executor, functools.partial(f, self, *args, **kwds))
+        raise RuntimeError(self._style)
     return wrapper
 
 
-class TonlibClient:
+class TonlibClientBase:
     _t_local = threading.local()
+    _style = 'Choose asyncio or concurrent.futures style'
 
     def __init__(
             self,
@@ -79,3 +87,11 @@ class TonlibClient:
         }
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
+
+
+class TonlibClientFutures(TonlibClientBase):
+    _style = 'futures'
+
+
+class TonlibClientAsyncio(TonlibClientBase):
+    _style = 'asyncio'
