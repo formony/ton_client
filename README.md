@@ -26,7 +26,7 @@ ton_client hasn't been published to PyPI yet so build and install it on your own
 # To be done
 
 * [x] parallel multithreading calling of libtonlibjon. Note: there is no GIL problem due using ctypes.CDLL()
-* [ ] support all the funcs of libtonlibjon as described in [spec](https://github.com/formony/ton_client/tree/master/docs/tonlib_api.tl). TL itself described [here](https://core.telegram.org/mtproto/TL)
+* [ ] support all the funcs of libtonlibjon as described in [spec](https://github.com/formony/ton_client/tree/master/docs/tonlib_api.tl) and mirror [here](https://github.com/ton-blockchain/ton/blob/master/tl/generate/scheme/tonlib_api.tl). TL itself described [here](https://core.telegram.org/mtproto/TL)
 * [x] asyncio wrapper
 * [ ] crypto primitives to work with plain keys
 * [ ] support of BIP32 mnemonic
