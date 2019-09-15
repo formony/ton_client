@@ -44,3 +44,4 @@ jobs:
       - run:
           command: |
             pipenv run coverage run setup.py test
+            pipenv run codecov
