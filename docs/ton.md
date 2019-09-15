@@ -1,6 +1,6 @@
 # TON fullnode build guide
 
-Assume using Debian or Ubuntu
+Assume using fresh Debian or Ubuntu
 
 ## Install requirements
 `sudo apt install -y build-essential git cmake gperf zlib1g-dev libreadline-dev ccache libmicrohttpd-dev libssl-dev`
