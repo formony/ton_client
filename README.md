@@ -15,7 +15,7 @@ Prerequisites:
 * ton_client is been shipped with prebuilt fullnode's client library for Ubuntu Xenial & latest macOS. 
 In case of incompatibility with your distro it's needed to build TON fullnode's libtonlibjson.so / libtonlibjson.dylib depends on archtecture. 
 Check [here](https://github.com/formony/ton_client/tree/master/docs/ton.md) for fullnode's build instructions.
-Don't forget to copy library file to ton_client/distlib/linux/libtonlibjon.so or ton_client/distlib/darwin/libtonlibjon.dylib
+Don't forget to copy library file to ton_client/distlib/linux/libtonlibjson.so or ton_client/distlib/darwin/libtonlibjson.dylib
 
 ton_client hasn't been published to PyPI yet so build and install it on your own:
 
@@ -25,9 +25,10 @@ ton_client hasn't been published to PyPI yet so build and install it on your own
 
 # To be done
 
-* [x] parallel multithreading calling of libtonlibjon. Note: there is no GIL problem due using ctypes.CDLL()
-* [ ] support all the funcs of libtonlibjon as described in [spec](https://github.com/formony/ton_client/tree/master/docs/tonlib_api.tl) and mirror [here](https://github.com/ton-blockchain/ton/blob/master/tl/generate/scheme/tonlib_api.tl). TL itself described [here](https://core.telegram.org/mtproto/TL)
+* [x] parallel multithreading calling of libtonlibjson. Note: there is no GIL problem due using ctypes.CDLL()
+* [ ] support all the funcs of libtonlibjson as described in [spec](https://github.com/formony/ton_client/tree/master/docs/tonlib_api.tl) and mirror [here](https://github.com/ton-blockchain/ton/blob/master/tl/generate/scheme/tonlib_api.tl). TL itself described [here](https://core.telegram.org/mtproto/TL)
 * [x] asyncio wrapper
+* [ ] support smart contracts build
 * [ ] crypto primitives to work with plain keys
 * [ ] support of BIP32 mnemonic
 * [ ] support key derivation as in BIP44 
