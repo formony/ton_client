@@ -23,14 +23,14 @@ jobs:
           paths:
             - ".venv"
 
-#      - run:
-#          command: |
-#            python setup.py flake8
-#      - store_test_results:
-#          path: flake8-results
-#      - store_artifacts:
-#          path: flake8-results
-#          destination: fr1
+      - run:
+          command: |
+            pipenv run flake8 ton_client testsuite
+      - store_test_results:
+          path: flake8-results
+      - store_artifacts:
+          path: flake8-results
+          destination: fr1
 
       - run:
           command: |
@@ -43,4 +43,4 @@ jobs:
 
       - run:
           command: |
-            coverage run setup.py test
+            pipenv run coverage run setup.py test
