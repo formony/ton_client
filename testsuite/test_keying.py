@@ -82,7 +82,6 @@ class ClientKeyingTestCase(unittest.TestCase):
             key_password=self.key_password
         )
         res2 = ft2.result()
-        print(res2)
         self.assertIsInstance(res2, dict)
         self.assertEqual(res2['@type'], 'exportedEncryptedKey')
 
