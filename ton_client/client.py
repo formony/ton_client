@@ -46,6 +46,16 @@ class TonlibClientBase:
         )
 
     def init_tonlib_thread(self, ip, port, key, keystore):
+        """
+        TL Spec
+            init options:options = Ok;
+            options config:string keystore_directory:string = Options;
+        :param ip: IPv4 address in dotted notation
+        :param port: IPv4 TCP port
+        :param key: base64 pub key of liteserver node
+        :param keystore: path to keystore on local filesystem
+        :return: None
+        """
         self._t_local.tonlib = Tonlib()
         config_ls_obj = {
             'liteservers': [
@@ -74,6 +84,12 @@ class TonlibClientBase:
 
     @threaded
     def testgiver_getaccount_address(self):
+        """
+        TL Spec:
+            testGiver.getAccountAddress = AccountAddress;
+            accountAddress account_address:string = AccountAddress;
+        :return:
+        """
         data = {
             '@type': 'testGiver.getAccountAddress'
         }
@@ -82,9 +98,97 @@ class TonlibClientBase:
 
     @threaded
     def testgiver_getaccount_state(self):
+        """
+        TL Spec:
+            testGiver.getAccountState = testGiver.AccountState;
+            testGiver.accountState balance:int64 seqno:int32 last_transaction_id:internal.transactionId = testGiver.AccountState;
+        :return:
+        """
         data = {
             '@type': 'testGiver.getAccountState'
         }
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+# TODO testGiver.sendGrams destination:accountAddress seqno:int32 amount:int64 = Ok;
+
+    @threaded
+    def create_new_key(self, local_password, mnemonic, random_extra_seed=''):
+        """
+        TL Spec:
+            createNewKey local_password:secureBytes mnemonic_password:secureBytes = Key;
+            key public_key:bytes secret:secureBytes = Key;
+
+        A new key will be stored locally (not at the litenode's fs) in keystore specified during __init__()
+        :param local_password: string
+        :param mnemonic: string of word[24] split by space
+        :return: dict as
+            {
+                '@type': 'key',
+                'public_key': base64 string of byte[32],
+                'secret': base64 string of byte[32]
+            }
+        """
+        data = {
+            '@type': 'createNewKey',
+            'local_password': local_password,
+            'mnemonic_password': mnemonic,
+            'random_extra_seed': random_extra_seed
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @threaded
+    def delete_key(self, public_key):
+        """
+        TL Spec:
+            deleteKey public_key:bytes = Ok;
+        Key will be deleted from local fs (not at the litenode's fs) in keystore specified during __init__()
+        :param public_key: base64 string of byte[32] of a public key
+        :return: dict as
+            {
+                '@type': 'ok' | 'error',
+            }
+        """
+        data = {
+            '@type': 'deleteKey',
+            'public_key': public_key
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @threaded
+    def export_key(self, public_key, secret, local_password):
+        """
+        TL Spec:
+            exportKey input_key:inputKey = ExportedKey;
+            inputKey key:key local_password:secureBytes = InputKey;
+            key public_key:bytes secret:secureBytes = Key;
+            exportedKey word_list:vector<secureString> = ExportedKey;
+        :param public_key: base64 string of byte[32] of a public key
+        :param secret: base64 string of byte[32] of a secret
+        :param local_password: string
+        :return: dict as
+            {
+                '@type': 'exportKey',
+                'key': base64 string of bytes(32),
+                'local_password': string
+            }
+        """
+
+        data = {
+            '@type': 'exportKey',
+            'input_key': {
+                'local_password': local_password,
+                'key': {
+                    'public_key': public_key,
+                    'secret': secret
+                }
+            }
+        }
+
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
 
