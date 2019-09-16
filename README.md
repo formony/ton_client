@@ -31,6 +31,6 @@ ton_client hasn't been published to PyPI yet so build and install it on your own
 * [x] asyncio wrapper
 * [ ] support smart contracts build
 * [ ] crypto primitives to work with plain keys
-* [ ] support of BIP32 mnemonic
+* [x] support of BIP32 mnemonic (see testsuite)
 * [ ] support key derivation as in BIP44 
  
