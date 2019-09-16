@@ -17,7 +17,7 @@ class ClientKeyingTestCase(unittest.TestCase):
     mn = Mnemonic("english")
     mn_phrase = mn.to_mnemonic(unhexlify(vect))
 
-    def _test_create_new_key(self):
+    def test_create_new_key(self):
         t = TonlibClientFutures(keystore=self.keystore)
 
         ft = t.create_new_key(local_password=self.passwd, mnemonic=self.mn_phrase)
