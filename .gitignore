@@ -112,5 +112,3 @@ venv.bak/
 .idea/modules.xml
 .idea/ton_client.iml
 .idea/vcs.xml
-
-tmp
