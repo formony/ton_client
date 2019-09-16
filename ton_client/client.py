@@ -15,7 +15,7 @@ from .tonlib import Tonlib
 logger = logging.getLogger(__name__)
 
 
-def threaded(f):
+def parallelize(f):
     @wraps(f)
     def wrapper(self, *args, **kwds):
         if self._style == 'futures':
@@ -82,7 +82,7 @@ class TonlibClientBase:
         r = self._t_local.tonlib.ton_async_execute(data)
         logging.debug(f'_init_lib() with query \'{data}\' and result {r}')
 
-    @threaded
+    @parallelize
     def testgiver_getaccount_address(self):
         """
         TL Spec:
@@ -96,7 +96,7 @@ class TonlibClientBase:
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
 
-    @threaded
+    @parallelize
     def testgiver_getaccount_state(self):
         """
         TL Spec:
@@ -112,7 +112,7 @@ class TonlibClientBase:
 
 # TODO testGiver.sendGrams destination:accountAddress seqno:int32 amount:int64 = Ok;
 
-    @threaded
+    @parallelize
     def create_new_key(self, local_password, mnemonic, random_extra_seed=''):
         """
         TL Spec:
@@ -120,8 +120,9 @@ class TonlibClientBase:
             key public_key:bytes secret:secureBytes = Key;
 
         A new key will be stored locally (not at the litenode's fs) in keystore specified during __init__()
+        :rtype: object
         :param local_password: string
-        :param mnemonic: string of word[24] split by space
+        :param mnemonic: list[24] or list[16] of mnemonic words
         :return: dict as
             {
                 '@type': 'key',
@@ -132,14 +133,14 @@ class TonlibClientBase:
         data = {
             '@type': 'createNewKey',
             'local_password': local_password,
-            'mnemonic_password': mnemonic,
+            'mnemonic_password': ' '.join(mnemonic),
             'random_extra_seed': random_extra_seed
         }
 
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
 
-    @threaded
+    @parallelize
     def delete_key(self, public_key):
         """
         TL Spec:
@@ -159,7 +160,7 @@ class TonlibClientBase:
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
 
-    @threaded
+    @parallelize
     def export_key(self, public_key, secret, local_password):
         """
         TL Spec:
@@ -173,13 +174,71 @@ class TonlibClientBase:
         :return: dict as
             {
                 '@type': 'exportKey',
-                'key': base64 string of bytes(32),
-                'local_password': string
+                'word_list': list[24] of mnemonic words
             }
         """
 
         data = {
             '@type': 'exportKey',
+            'input_key': {
+                'local_password': local_password,
+                'key': {
+                    'public_key': public_key,
+                    'secret': secret
+                }
+            }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def export_pem_key(self, public_key, secret, local_password, key_password):
+        """
+        !Not supported yet!
+         TL Spec:
+            exportPemKey input_key:inputKey key_password:secureBytes = ExportedPemKey;
+            inputKey key:key local_password:secureBytes = InputKey;
+            key public_key:bytes secret:secureBytes = Key;
+            exportedPemKey pem:secureString = ExportedPemKey;
+        :param public_key: base64 string of byte[32] of a public key
+        :param secret: base64 string of byte[32] of a secret
+        :param local_password: string
+        :param key_password: key to encrypt resulting PEM itself
+        :return:
+        """
+        data = {
+            '@type': 'exportPemKey',
+            'key_password': key_password,
+            'input_key': {
+                'local_password': local_password,
+                'key': {
+                    'public_key': public_key,
+                    'secret': secret
+                }
+            }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def export_encrypted_key(self, public_key, secret, local_password, key_password):
+        """
+         TL Spec:
+            exportEncryptedKey input_key:inputKey key_password:secureBytes = ExportedEncryptedKey;
+            inputKey key:key local_password:secureBytes = InputKey;
+            key public_key:bytes secret:secureBytes = Key;
+            exportedEncryptedKey data:secureBytes = ExportedEncryptedKey;
+        :param public_key: base64 string of byte[32] of a public key
+        :param secret: base64 string of byte[32] of a secret
+        :param local_password: string
+        :param key_password: key to encrypt resulting PEM itself
+        :return:
+        """
+        data = {
+            '@type': 'exportEncryptedKey',
+            'key_password': key_password,
             'input_key': {
                 'local_password': local_password,
                 'key': {
