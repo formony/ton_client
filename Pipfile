@@ -12,6 +12,7 @@ wheel = ">=0.33.6"
 ed25519 = "~=1.5"
 ujson = ">=1.35"
 uvloop = "*"
+mnemonic = "*"
 
 [requires]
 python_version = "3.7"
