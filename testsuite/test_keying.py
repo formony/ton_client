@@ -86,3 +86,15 @@ class ClientKeyingTestCase(unittest.TestCase):
         self.assertEqual(res2['@type'], 'exportedEncryptedKey')
 
         self._delete_key(res1['public_key'])
+
+    def test_import_key(self):
+        ft = self.t.import_key(
+            local_password=self.local_password,
+            mnemonic_password=self.key_password,
+            mnemonic=self.mn_phrase
+        )
+        res = ft.result()
+        self.assertIsInstance(res, dict)
+        self.assertEqual(res['@type'], 'key')
+
+        self._delete_key(res['public_key'])

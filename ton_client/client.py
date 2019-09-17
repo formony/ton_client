@@ -251,6 +251,37 @@ class TonlibClientBase:
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
 
+    @parallelize
+    def import_key(self, local_password, mnemonic_password, mnemonic):
+        """
+        TL Spec:
+            importKey local_password:secureBytes mnemonic_password:secureBytes exported_key:exportedKey = Key;
+            exportedKey word_list: vector < secureString > = ExportedKey;
+
+        :param local_password: string
+        :param mnemonic_password: string
+        :param mnemonic: list[24] of mnemonic words
+        :return: dict as
+            {
+                '@type': 'key',
+                'public_key': base64 string of byte[32],
+                'secret': base64 string of byte[32]
+            }
+        """
+
+        data = {
+            '@type': 'importKey',
+            'local_password': local_password,
+            'exported_key': {
+                'type': 'exportedKey',
+                'word_list': mnemonic
+            },
+            'mnemonic_password': mnemonic_password
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
 
 class TonlibClientFutures(TonlibClientBase):
     _style = 'futures'
