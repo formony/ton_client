@@ -13,6 +13,7 @@ ed25519 = "~=1.5"
 ujson = ">=1.35"
 uvloop = "*"
 mnemonic = "*"
+crc16 = "*"
 
 [requires]
 python_version = "3.7"
