@@ -2,6 +2,7 @@
 
 import unittest
 from ton_client.tonlib import Tonlib
+from ton_client.utils import raw_to_userfriendly
 
 
 class ConfigMixture:
@@ -49,6 +50,8 @@ class TonlibTestCase1(unittest.TestCase, ConfigMixture):
 
 
 class TonlibTestCase2(unittest.TestCase, ConfigMixture):
+    testgiver_address = raw_to_userfriendly('-1:FCB91A3A3816D0F7B8C2C76108B8A9BC5A6B7A55BD79F8AB101C52DB29232260', 0x91)
+
     @classmethod
     def setUpClass(cls) -> None:
 
@@ -70,12 +73,12 @@ class TonlibTestCase2(unittest.TestCase, ConfigMixture):
         self.lib.ton_send(data)
         r = self.lib.ton_receive()
         self.assertIsInstance(r, dict)
-        self.assertEqual('Ef+BVndbeTJeXWLnQtm5bDC2UVpc0vH2TF2ksZPAPwcODSkb', r['account_address'])
+        self.assertEqual(self.testgiver_address, r['account_address'])
 
     def test_lib_remote_ops(self):
         data = {
             '@type': 'raw.getAccountState',
-            'account_address': {'account_address': 'Ef+BVndbeTJeXWLnQtm5bDC2UVpc0vH2TF2ksZPAPwcODSkb'}
+            'account_address': {'account_address': self.testgiver_address}
         }
         r = self.lib.ton_async_execute(data)
         self.assertIsInstance(r, dict)

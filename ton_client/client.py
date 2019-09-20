@@ -226,8 +226,8 @@ class TonlibClientBase:
             'input_key': {
                 'local_password': str_b64encode(local_password),
                 'key': {
-                    'public_key': str_b64encode(public_key),
-                    'secret': str_b64encode(secret)
+                    'public_key': public_key,
+                    'secret': secret
                 }
             }
         }
