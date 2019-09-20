@@ -23,7 +23,7 @@ def raw_to_userfriendly(address, tag=0x11):
     key = bytearray.fromhex(key)
 
     short_ints = [j * 256 + i for i, j in zip(*[iter(key)] * 2)]
-    payload = struct.pack(f'bb{"H"*16}', tag, workchain_id, *short_ints)
+    payload = struct.pack(f'Bb{"H"*16}', tag, workchain_id, *short_ints)
     crc = crc16.crc16xmodem(payload)
 
     e_key = payload + struct.pack('>H', crc)
@@ -33,5 +33,9 @@ def raw_to_userfriendly(address, tag=0x11):
 def userfriendly_to_raw(address):
     k = base64.b64decode(address)[1:34]
     workchain_id = struct.unpack('b', k[:1])[0]
-    key = k[1:].hex()
+    key = k[1:].hex().upper()
     return f'{workchain_id}:{key}'
+
+
+def str_b64encode(s):
+    return base64.b64encode(s.encode('utf-8')).decode('utf-8')

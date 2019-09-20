@@ -7,16 +7,16 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import asyncio
 import functools
-from functools import wraps
 
 import ujson as json
 from .tonlib import Tonlib
+from .utils import str_b64encode
 
 logger = logging.getLogger(__name__)
 
 
 def parallelize(f):
-    @wraps(f)
+    @functools.wraps(f)
     def wrapper(self, *args, **kwds):
         if self._style == 'futures':
             return self._executor.submit(f, self, *args, **kwds)
@@ -58,23 +58,36 @@ class TonlibClientBase:
         """
         self._t_local.tonlib = Tonlib()
         config_ls_obj = {
-            'liteservers': [
-                {
-                    '@type': 'liteserver.desc',
-                    'ip': struct.unpack('!I', socket.inet_aton(ip))[0],
-                    'port': port,
-                    'id': {
-                        '@type': 'pub.ed25519',
-                        'key': key
-                    }
-                }
-            ]
+            '@type': 'liteserver.desc',
+            'ip': struct.unpack('!I', socket.inet_aton(ip))[0],
+            'port': port,
+            'id': {
+                '@type': 'pub.ed25519',
+                'key': key
+            }
         }
+        config_vl_obj = {
+            '@type': 'validator.config.global',
+            'zero_state': {
+                'workchain': -1,
+                'shard': -9223372036854775808,
+                'seqno': 0,
+                'root_hash': 'VCSXxDHhTALFxReyTZRd8E4Ya3ySOmpOWAS4rBX9XBY=',
+                'file_hash': 'eh9yveSz1qMdJ7mOsO+I+H77jkLr9NpAuEkoJuseXBo='
+            }
+        }
+        config_obj = {
+            'liteservers': [
+                config_ls_obj
+            ],
+            'validator': config_vl_obj
+        }
+
         data = {
             '@type': 'init',
             'options': {
                 '@type': 'options',
-                'config': json.dumps(config_ls_obj),
+                'config': json.dumps(config_obj),
                 'keystore_directory': keystore
             }
         }
@@ -132,9 +145,9 @@ class TonlibClientBase:
         """
         data = {
             '@type': 'createNewKey',
-            'local_password': local_password,
-            'mnemonic_password': ' '.join(mnemonic),
-            'random_extra_seed': random_extra_seed
+            'local_password': str_b64encode(local_password),
+            'mnemonic_password': str_b64encode(' '.join(mnemonic)),
+            'random_extra_seed': str_b64encode(random_extra_seed)
         }
 
         r = self._t_local.tonlib.ton_async_execute(data)
@@ -181,7 +194,7 @@ class TonlibClientBase:
         data = {
             '@type': 'exportKey',
             'input_key': {
-                'local_password': local_password,
+                'local_password': str_b64encode(local_password),
                 'key': {
                     'public_key': public_key,
                     'secret': secret
@@ -209,12 +222,12 @@ class TonlibClientBase:
         """
         data = {
             '@type': 'exportPemKey',
-            'key_password': key_password,
+            'key_password': str_b64encode(key_password),
             'input_key': {
-                'local_password': local_password,
+                'local_password': str_b64encode(local_password),
                 'key': {
-                    'public_key': public_key,
-                    'secret': secret
+                    'public_key': str_b64encode(public_key),
+                    'secret': str_b64encode(secret)
                 }
             }
         }
@@ -238,9 +251,9 @@ class TonlibClientBase:
         """
         data = {
             '@type': 'exportEncryptedKey',
-            'key_password': key_password,
+            'key_password': str_b64encode(key_password),
             'input_key': {
-                'local_password': local_password,
+                'local_password': str_b64encode(local_password),
                 'key': {
                     'public_key': public_key,
                     'secret': secret
@@ -271,12 +284,12 @@ class TonlibClientBase:
 
         data = {
             '@type': 'importKey',
-            'local_password': local_password,
+            'local_password': str_b64encode(local_password),
             'exported_key': {
                 'type': 'exportedKey',
-                'word_list': mnemonic
+                'word_list': [str_b64encode(x) for x in mnemonic]
             },
-            'mnemonic_password': mnemonic_password
+            'mnemonic_password': str_b64encode(mnemonic_password)
         }
 
         r = self._t_local.tonlib.ton_async_execute(data)

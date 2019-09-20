@@ -7,12 +7,14 @@ import os
 import uvloop
 
 from ton_client.client import TonlibClientAsyncio
-from ton_client.utils import coro_result
+from ton_client.utils import coro_result, raw_to_userfriendly
 
 proj_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 
 
 class TonlibTestAsyncCase1(unittest.TestCase):
+    testgiver_address = raw_to_userfriendly('-1:FCB91A3A3816D0F7B8C2C76108B8A9BC5A6B7A55BD79F8AB101C52DB29232260', 0x91)
+
     def setUp(self):
         uvloop.install()
 
@@ -21,8 +23,8 @@ class TonlibTestAsyncCase1(unittest.TestCase):
         coro = t.testgiver_getaccount_address()
         res = coro_result(coro)
         self.assertIsInstance(res, dict)
-        self.assertEqual(res['@type'], 'accountAddress')
-        self.assertEqual(res['account_address'], 'Ef+BVndbeTJeXWLnQtm5bDC2UVpc0vH2TF2ksZPAPwcODSkb')
+        self.assertEqual('accountAddress', res['@type'])
+        self.assertEqual(self.testgiver_address, res['account_address'])
 
     def test_testgiver_getaccount_state_parallel(self):
         t = TonlibClientAsyncio(threads=5)
@@ -34,9 +36,9 @@ class TonlibTestAsyncCase1(unittest.TestCase):
 
 class TonlibTestAsyncCase2(unittest.TestCase):
     keystore = os.path.join(proj_path, 'tmp')
-    vect = '000000000000000000000000000000000000000000000000'
+    vect = '23454927' * 5
     local_password = '1234567890'
-    key_password = 'qwerty'
+    key_password = 'qwert'
     mn = Mnemonic("english")
     mn_phrase = mn.to_mnemonic(unhexlify(vect)).split(' ')
     t = TonlibClientAsyncio(keystore=keystore)

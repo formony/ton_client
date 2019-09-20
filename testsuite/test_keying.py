@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import os
 from binascii import unhexlify
 from mnemonic.mnemonic import Mnemonic
-import os
 
 from ton_client.client import TonlibClientFutures
 
@@ -12,9 +12,9 @@ proj_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 
 class ClientKeyingTestCase(unittest.TestCase):
     keystore = os.path.join(proj_path, 'tmp')
-    vect = '000000000000000000000000000000000000000000000000'
+    vect = '23454927' * 5
     local_password = '1234567890'
-    key_password = 'qwerty'
+    key_password = 'qwert'
     mn = Mnemonic("english")
     mn_phrase = mn.to_mnemonic(unhexlify(vect)).split(' ')
     t = TonlibClientFutures(keystore=keystore)
@@ -23,25 +23,25 @@ class ClientKeyingTestCase(unittest.TestCase):
         ft = self.t.create_new_key(local_password=self.local_password, mnemonic=self.mn_phrase)
         res = ft.result()
         self.assertIsInstance(res, dict)
-        self.assertEqual(res['@type'], 'key')
+        self.assertEqual('key', res['@type'])
         return res
 
     def _delete_key(self, public_key):
         ft = self.t.delete_key(public_key)
         res = ft.result()
         self.assertIsInstance(res, dict)
-        self.assertEqual(res['@type'], 'ok')
+        self.assertEqual('ok', res['@type'])
 
     def test_create_new_key(self):
         ft = self.t.create_new_key(local_password=self.local_password, mnemonic=self.mn_phrase)
         res = ft.result()
         self.assertIsInstance(res, dict)
-        self.assertEqual(res['@type'], 'key')
+        self.assertEqual('key', res['@type'])
 
         ft = self.t.delete_key(public_key=res['public_key'])
         res = ft.result()
         self.assertIsInstance(res, dict)
-        self.assertEqual(res['@type'], 'ok')
+        self.assertEqual('ok', res['@type'])
 
     def test_export_key(self):
         res1 = self._create_new_key()
@@ -53,7 +53,7 @@ class ClientKeyingTestCase(unittest.TestCase):
         )
         res2 = ft2.result()
         self.assertIsInstance(res2, dict)
-        self.assertEqual(res2['@type'], 'exportedKey')
+        self.assertEqual('exportedKey', res2['@type'])
 
         self._delete_key(res1['public_key'])
 
@@ -68,7 +68,7 @@ class ClientKeyingTestCase(unittest.TestCase):
         )
         res2 = ft2.result()
         self.assertIsInstance(res2, dict)
-        self.assertEqual(res2['@type'], 'exportedKey')
+        self.assertEqual('exportedKey', res2['@type'])
 
         self._delete_key(res1['public_key'])
 
@@ -83,7 +83,7 @@ class ClientKeyingTestCase(unittest.TestCase):
         )
         res2 = ft2.result()
         self.assertIsInstance(res2, dict)
-        self.assertEqual(res2['@type'], 'exportedEncryptedKey')
+        self.assertEqual('exportedEncryptedKey', res2['@type'])
 
         self._delete_key(res1['public_key'])
 
@@ -94,7 +94,8 @@ class ClientKeyingTestCase(unittest.TestCase):
             mnemonic=self.mn_phrase
         )
         res = ft.result()
+        print(res)
         self.assertIsInstance(res, dict)
-        self.assertEqual(res['@type'], 'key')
+        self.assertEqual('key', res['@type'])
 
         self._delete_key(res['public_key'])
