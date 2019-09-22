@@ -15,7 +15,7 @@ proj_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 class ClientOfflineTestCase(unittest.TestCase):
     testgiver_address = raw_to_userfriendly('-1:FCB91A3A3816D0F7B8C2C76108B8A9BC5A6B7A55BD79F8AB101C52DB29232260', 0x91)
 
-    def _test_testgiver_getaccount_address(self):
+    def test_testgiver_getaccount_address(self):
         t = TonlibClientFutures()
         ft = t.testgiver_getaccount_address()
         res = ft.result()
@@ -25,14 +25,14 @@ class ClientOfflineTestCase(unittest.TestCase):
 
 
 class ClientOnlineTestCase(unittest.TestCase):
-    def _test_testgiver_getaccount_state(self):
+    def test_testgiver_getaccount_state(self):
         t = TonlibClientFutures()
         ft = t.testgiver_getaccount_state()
         res = ft.result()
         self.assertIsInstance(res, dict)
         self.assertEqual('testGiver.accountState', res['@type'])
 
-    def _test_testgiver_getaccount_state_parallel(self):
+    def test_testgiver_getaccount_state_parallel(self):
         t = TonlibClientFutures(threads=5)
         fts = [t.testgiver_getaccount_state() for _ in range(10)]
         ress = [f.result() for f in fts]
