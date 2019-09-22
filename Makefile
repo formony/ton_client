@@ -30,3 +30,6 @@ clean-setuppy:
 
 bdist-wheel: setup-dev
 	pipenv run python setup.py bdist_wheel
+
+build_ext: setup-dev
+	pipenv run python setup.py build_ext
