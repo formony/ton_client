@@ -141,7 +141,7 @@ class TonlibClientBase:
         :return:
         """
         if len(dest_address.split(':')) == 2:
-            address = raw_to_userfriendly(dest_address)
+            dest_address = raw_to_userfriendly(dest_address)
 
         data = {
             '@type': 'testGiver.sendGrams',
