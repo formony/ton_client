@@ -7,10 +7,21 @@ import struct
 import crc16
 
 
-def key_b64_to_hex_flip(b64_key):
-    key_hex_unswaswapped_nibbles = base64.b64decode(b64_key).hex().upper()
-    key_hex = "".join([f'{j}{i}' for i, j in zip(*[iter(key_hex_unswaswapped_nibbles)] * 2)])
-    return key_hex
+def pubkey_b64_to_hex(b64_key):
+    """
+    Convert tonlib's pubkey in format f'I{"H"*16}' i.e. prefix:key to upperhex filename as it stored in keystore
+    :param b64_key: base64 encoded 36 bytes of public key
+    :param drop_prefix: drop first 2 bytes of prefix
+    :return:
+    """
+    bin_key = base64.b64decode(b64_key)
+    words = 18
+    ints_key = struct.unpack(f'{"H"*words}', bin_key)
+    key = [x.to_bytes(2, byteorder='little') for x in ints_key]
+    key = b''.join(key)
+    key = [((x & 0x0F) << 4 | (x & 0xF0) >> 4).to_bytes(1, byteorder='little') for x in key]
+    name = b''.join(key)
+    return name.hex().upper()
 
 
 def coro_result(coro):
