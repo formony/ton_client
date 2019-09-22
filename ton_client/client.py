@@ -10,7 +10,7 @@ import functools
 
 import ujson as json
 from .tonlib import Tonlib
-from .utils import str_b64encode
+from .utils import str_b64encode, raw_to_userfriendly
 
 logger = logging.getLogger(__name__)
 
@@ -120,6 +120,46 @@ class TonlibClientBase:
         data = {
             '@type': 'testGiver.getAccountState'
         }
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def test_wallet_init(self, public_key, secret):
+        data = {
+            '@type': 'testWallet.init',
+            'private_key': {
+                'key': {
+                    'public_key': public_key,
+                    'secret': secret
+                }
+            }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def test_wallet_get_account_address(self, public_key):
+        data = {
+            '@type': 'testWallet.getAccountAddress',
+            'initital_account_state': {
+                'public_key': public_key
+            }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def test_wallet_get_account_state(self, address: str):
+        if len(address.split(':')) == 2:
+            address = raw_to_userfriendly(address)
+
+        data = {
+            '@type': 'testWallet.getAccountState',
+            'account_address': address
+        }
+
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
 
@@ -290,6 +330,23 @@ class TonlibClientBase:
                 'word_list': [str_b64encode(x) for x in mnemonic]
             },
             'mnemonic_password': str_b64encode(mnemonic_password)
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def decrypt_key(self, public_key, secret, local_password):
+        data = {
+            '@type': 'changeLocalPassword',
+            'input_key': {
+                'local_password': str_b64encode(local_password),
+                'key': {
+                    'public_key': public_key,
+                    'secret': secret
+                }
+            }
+
         }
 
         r = self._t_local.tonlib.ton_async_execute(data)
