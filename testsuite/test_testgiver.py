@@ -49,7 +49,7 @@ class TestgiverTestCase(unittest.TestCase):
     mn_phrase = mn.to_mnemonic(unhexlify(vect)).split(' ')
     t = TonlibClientFutures(keystore=keystore)
 
-    def test_testgiver_init(self):
+    def _test_testgiver_init(self):
         res1 = self.t.create_new_key(
             local_password=self.local_password,
             mnemonic=self.mn_phrase
@@ -70,3 +70,68 @@ class TestgiverTestCase(unittest.TestCase):
         self.assertEqual('ok', res3['@type'])
 
         self.t.delete_key(res2['public_key'])
+
+    def test_testgiver_address_new_transaction(self):
+        """
+            Reference implementation of wallet operation using testgiver_ and test_wallet_ funcs. Due to asynchronous nature of TON the rest of test
+            cannot be done at the moment of faucet exhaustion. Waiting for a new faucet address & and Grams on it :)
+        """
+        # create key
+        res_create = self.t.create_new_key(
+            local_password=self.local_password,
+            mnemonic=self.mn_phrase
+        ).result()
+        self.assertIsInstance(res_create, dict)
+        self.assertNotEqual('error', res_create['@type'])
+
+        # decrypt key to public key & secret
+        res_decrypt = self.t.decrypt_key(
+            public_key=res_create['public_key'],
+            secret=res_create['secret'],
+            local_password=self.local_password
+        ).result()
+        self.assertIsInstance(res_create, dict)
+        self.assertNotEqual('error', res_decrypt['@type'])
+
+        # convert public key to account address (testing in 0 chain)
+        res_wallet_account_address = self.t.test_wallet_get_account_address(
+            public_key=res_decrypt['public_key']
+        ).result()
+        self.assertIsInstance(res_wallet_account_address, dict)
+        self.assertNotEqual('error', res_wallet_account_address['@type'])
+        self.assertEqual('accountAddress', res_wallet_account_address['@type'])
+        account_address = res_wallet_account_address['account_address']
+
+        # get current state of faucet (we need seq number)
+        res_testgiver_account_state = self.t.testgiver_getaccount_state().result()
+
+        # send grams from faucet to uninitialized wallet
+        res_testgiver_send_grams = self.t.testgiver_send_grams(
+            dest_address=account_address,
+            seq_no=res_testgiver_account_state['seqno'],
+            amount=int(1 * 10e8)
+        ).result()
+        self.assertIsInstance(res_testgiver_send_grams, dict)
+        self.assertNotEqual('error', res_testgiver_send_grams['@type'])
+        self.assertEqual('ok', res_testgiver_send_grams['@type'])
+
+        # init new test wallet specified by public key & secret
+        res_test_wallet_init = self.t.test_wallet_init(
+            public_key=res_decrypt['public_key'],
+            secret=res_decrypt['secret']
+        ).result()
+        self.assertIsInstance(res_test_wallet_init, dict)
+        self.assertNotEqual('error', res_test_wallet_init['@type'])
+        self.assertEqual('ok', res_test_wallet_init['@type'])
+
+        res_test_wallet_get_account_state = self.t.test_wallet_get_account_state(
+            address=account_address
+        ).result()
+        self.assertIsInstance(res_test_wallet_get_account_state, dict)
+        # self.assertNotEqual('error', res_test_wallet_init['@type'])
+
+        res_delete_key = self.t.delete_key(
+            public_key=res_decrypt['public_key']
+        ).result()
+        self.assertIsInstance(res_delete_key, dict)
+        self.assertNotEqual('error', res_delete_key['@type'])

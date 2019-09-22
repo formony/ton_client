@@ -115,7 +115,13 @@ class TonlibClientBase:
         TL Spec:
             testGiver.getAccountState = testGiver.AccountState;
             testGiver.accountState balance:int64 seqno:int32 last_transaction_id:internal.transactionId = testGiver.AccountState;
-        :return:
+            internal.transactionId lt:int64 hash:bytes = internal.TransactionId;
+        :return: dict as
+            {
+                '@type': 'testGiver.accountState',
+                'seqno': int,
+                'last_transaction_id': tbd!
+            }
         """
         data = {
             '@type': 'testGiver.getAccountState'
@@ -124,7 +130,42 @@ class TonlibClientBase:
         return r
 
     @parallelize
+    def testgiver_send_grams(self, dest_address, seq_no, amount):
+        """
+        TL Spec:
+            testGiver.sendGrams destination:accountAddress seqno:int32 amount:int64 = Ok;
+            accountAddress account_address:string = AccountAddress;
+        :param dest_address: str with raw or user friendly address
+        :param seq_no: sequence number to gain consistency and prevent double spend
+        :param amount: given simple fraction where 'amount' is numerator and 10e8 in denominator. E.g. amount = 6666000000 will be 6.66 Grams
+        :return:
+        """
+        if len(dest_address.split(':')) == 2:
+            address = raw_to_userfriendly(dest_address)
+
+        data = {
+            '@type': 'testGiver.sendGrams',
+            'seqno': seq_no,
+            'amount': amount,
+            'destination': {
+                'account_address': dest_address
+            }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
     def test_wallet_init(self, public_key, secret):
+        """
+        TL Spec:
+            testWallet.init private_key:inputKey = Ok;
+            key public_key:string secret:secureBytes = Key;
+            inputKey key:key local_password:secureBytes = InputKey;
+        :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
+        :param secret: str of base64 encoded secret as packed by e.g. create_new_key() or decrypt_key()
+        :return:
+        """
         data = {
             '@type': 'testWallet.init',
             'private_key': {
@@ -140,6 +181,17 @@ class TonlibClientBase:
 
     @parallelize
     def test_wallet_get_account_address(self, public_key):
+        """
+        Specific method for getting address from public key. In contrast to Ethereum and many other blockchains,
+        there is no 1-to-1 match between address and public key except this tonlib's internally hardcoded algorithm
+        TL Spec:
+            testWallet.getAccountState account_address:accountAddress = testWallet.AccountState;
+            testWallet.accountState balance:int64 seqno:int32 last_transaction_id:internal.transactionId = testWallet.AccountState;
+            internal.transactionId lt:int64 hash:bytes = internal.TransactionId;
+            accountAddress account_address:string = AccountAddress;
+        :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
+        :return:
+        """
         data = {
             '@type': 'testWallet.getAccountAddress',
             'initital_account_state': {
@@ -152,12 +204,23 @@ class TonlibClientBase:
 
     @parallelize
     def test_wallet_get_account_state(self, address: str):
+        """
+        TL Spec:
+            testWallet.getAccountState account_address:accountAddress = testWallet.AccountState;
+            testWallet.accountState balance:int64 seqno:int32 last_transaction_id:internal.transactionId = testWallet.AccountState;
+            internal.transactionId lt:int64 hash:bytes = internal.TransactionId;
+            accountAddress account_address:string = AccountAddress;
+        :param address: str with raw or user friendly address
+        :return:
+        """
         if len(address.split(':')) == 2:
             address = raw_to_userfriendly(address)
 
         data = {
             '@type': 'testWallet.getAccountState',
-            'account_address': address
+            'account_address': {
+                'account_address': address
+            }
         }
 
         r = self._t_local.tonlib.ton_async_execute(data)
@@ -221,8 +284,8 @@ class TonlibClientBase:
             inputKey key:key local_password:secureBytes = InputKey;
             key public_key:bytes secret:secureBytes = Key;
             exportedKey word_list:vector<secureString> = ExportedKey;
-        :param public_key: base64 string of byte[32] of a public key
-        :param secret: base64 string of byte[32] of a secret
+        :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
+        :param secret: str of base64 encoded secret as packed by e.g. create_new_key() or decrypt_key()
         :param local_password: string
         :return: dict as
             {
@@ -254,8 +317,8 @@ class TonlibClientBase:
             inputKey key:key local_password:secureBytes = InputKey;
             key public_key:bytes secret:secureBytes = Key;
             exportedPemKey pem:secureString = ExportedPemKey;
-        :param public_key: base64 string of byte[32] of a public key
-        :param secret: base64 string of byte[32] of a secret
+        :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
+        :param secret: str of base64 encoded secret as packed by e.g. create_new_key() or decrypt_key()
         :param local_password: string
         :param key_password: key to encrypt resulting PEM itself
         :return:
@@ -283,8 +346,8 @@ class TonlibClientBase:
             inputKey key:key local_password:secureBytes = InputKey;
             key public_key:bytes secret:secureBytes = Key;
             exportedEncryptedKey data:secureBytes = ExportedEncryptedKey;
-        :param public_key: base64 string of byte[32] of a public key
-        :param secret: base64 string of byte[32] of a secret
+        :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
+        :param secret: str of base64 encoded secret as packed by e.g. create_new_key() or decrypt_key()
         :param local_password: string
         :param key_password: key to encrypt resulting PEM itself
         :return:
@@ -337,6 +400,22 @@ class TonlibClientBase:
 
     @parallelize
     def decrypt_key(self, public_key, secret, local_password):
+        """
+        Decrypt key encrypted with local_password and return secret & public key
+        TL Spec:
+            changeLocalPassword input_key:inputKey new_local_password:secureBytes = Key;
+            key public_key:string secret:secureBytes = Key;
+            inputKey key:key local_password:secureBytes = InputKey;
+
+        :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
+        :param secret: str of base64 encoded secret as packed by e.g. create_new_key() or decrypt_key()
+        :param local_password: string
+        :return: dict as
+            {
+                'public_key': base64 encoded string,
+                'secret': base64 encoded string
+            }
+        """
         data = {
             '@type': 'changeLocalPassword',
             'input_key': {
