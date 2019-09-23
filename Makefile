@@ -1,10 +1,10 @@
 setup-all: setup setup-dev
 
-setup: setup-pipenv setup-commands
+setup: setup-pipenv setup-commands build_ext
 
 setup-dev: setup-pipenv setup-dev-commands
 
-clean: clean-venv clean-setuppy
+clean: clean-venv clean-setuppy clean-cython
 
 setup-pipenv:
 ifeq (, $(shell which pipenv))
@@ -28,8 +28,12 @@ clean-setuppy:
 	rm -rf dist
 	rm -rf *.egg-info
 
+clean-cython:
+	rm -rf ton_client/ton_clib/*.c
+	rm -rf ton_client/ton_clib.*.so
+
 bdist-wheel: setup-dev
 	pipenv run python setup.py bdist_wheel
 
 build_ext: setup-dev
-	pipenv run python setup.py build_ext
+	pipenv run python setup.py build_ext --inplace

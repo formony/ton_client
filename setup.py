@@ -9,11 +9,11 @@ requirements = convert_deps_to_pip(pfile['packages'], r=False)
 test_requirements = convert_deps_to_pip(pfile['dev-packages'], r=False)
 
 ton_clib_extension = Extension(
-    name="ton_client.ton_clib",
-    sources=["ton_client/ton_clib/*.pyx"],
+    "ton_client.ton_clib",
+    ["ton_client/ton_clib/*.pyx"],
     # libraries=["ton_clib"],
-    library_dirs=["ton_client/ton_clib/lib"],
-    include_dirs=["ton_client/ton_clib/lib"]
+    # library_dirs=["ton_client/ton_clib/lib"],
+    # include_dirs=["ton_client/ton_clib/lib"]
 )
 
 setup(

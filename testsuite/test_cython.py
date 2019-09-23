@@ -6,7 +6,7 @@ from ton_client import ton_clib
 
 class MyTestCase(unittest.TestCase):
     def test_something(self):
-        ton_clib.python_hello_world('sdfghf')
+        ton_clib.python_hello_world(b'sdfghf')
         self.assertEqual(True, True)
 
 

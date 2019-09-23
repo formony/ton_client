@@ -1,2 +1,4 @@
-cdef void python_hello_world(string: bytes):
+
+def python_hello_world(bytes string) -> bool:
     print('Hello TON! ', string)
+    return True

@@ -112,3 +112,8 @@ venv.bak/
 .idea/modules.xml
 .idea/ton_client.iml
 .idea/vcs.xml
+
+# Cython
+
+/ton_client/ton_clib/*.c
+/ton_client/*.so
