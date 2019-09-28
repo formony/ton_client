@@ -26,6 +26,13 @@ class TonlibTestAsyncCase1(unittest.TestCase):
         self.assertEqual('accountAddress', res['@type'])
         self.assertEqual(self.testgiver_address, res['account_address'])
 
+    def test_testgiver_getaccount_state(self):
+        t = TonlibClientAsyncio()
+        coro = t.testgiver_getaccount_state()
+        res = coro_result(coro)
+        self.assertIsInstance(res, dict)
+        self.assertEqual(res['@type'], 'testGiver.accountState')
+
     def test_testgiver_getaccount_state_parallel(self):
         t = TonlibClientAsyncio(threads=5)
         coros = [t.testgiver_getaccount_state() for _ in range(10)]
@@ -50,8 +57,8 @@ class TonlibTestAsyncCase2(unittest.TestCase):
         self.assertEqual(res['@type'], 'key')
         return res
 
-    def _delete_key(self, public_key):
-        coro = self.t.delete_key(public_key)
+    def _delete_key(self, public_key, secret):
+        coro = self.t.delete_key(public_key=public_key, secret=secret)
         res = coro_result(coro)
         self.assertIsInstance(res, dict)
         self.assertEqual(res['@type'], 'ok')
@@ -60,15 +67,15 @@ class TonlibTestAsyncCase2(unittest.TestCase):
         uvloop.install()
 
     def test_export_key(self):
-        res1 = self._create_new_key()
+        res_create_new_key = self._create_new_key()
 
-        coro2 = self.t.export_key(
-            public_key=res1['public_key'],
-            secret=res1['secret'],
+        coro_export_key = self.t.export_key(
+            public_key=res_create_new_key['public_key'],
+            secret=res_create_new_key['secret'],
             local_password=self.local_password
         )
-        res2 = coro_result(coro2)
-        self.assertIsInstance(res2, dict)
-        self.assertEqual(res2['@type'], 'exportedKey')
+        res_export_key = coro_result(coro_export_key)
+        self.assertIsInstance(res_export_key, dict)
+        self.assertEqual(res_export_key['@type'], 'exportedKey')
 
-        self._delete_key(res1['public_key'])
+        self._delete_key(public_key=res_create_new_key['public_key'], secret=res_create_new_key['secret'])

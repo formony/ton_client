@@ -257,12 +257,14 @@ class TonlibClientBase:
         return r
 
     @parallelize
-    def delete_key(self, public_key):
+    def delete_key(self, public_key, secret):
         """
         TL Spec:
-            deleteKey public_key:bytes = Ok;
+            deleteKey key:key = Ok;
+            key public_key:string secret:secureBytes = Key;
         Key will be deleted from local fs (not at the litenode's fs) in keystore specified during __init__()
         :param public_key: base64 string of byte[32] of a public key
+        :param secret: base64 string of byte[32] of a public key
         :return: dict as
             {
                 '@type': 'ok' | 'error',
@@ -270,7 +272,11 @@ class TonlibClientBase:
         """
         data = {
             '@type': 'deleteKey',
-            'public_key': public_key
+            'key': {
+                'public_key': public_key,
+                'secret': secret
+            }
+
         }
 
         r = self._t_local.tonlib.ton_async_execute(data)

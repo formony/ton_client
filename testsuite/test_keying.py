@@ -26,76 +26,70 @@ class ClientKeyingTestCase(unittest.TestCase):
         self.assertEqual('key', res['@type'])
         return res
 
-    def _delete_key(self, public_key):
-        ft = self.t.delete_key(public_key)
+    def _delete_key(self, public_key, secret):
+        ft = self.t.delete_key(public_key=public_key, secret=secret)
         res = ft.result()
         self.assertIsInstance(res, dict)
         self.assertEqual('ok', res['@type'])
 
     def test_create_new_key(self):
-        ft = self.t.create_new_key(local_password=self.local_password, mnemonic=self.mn_phrase)
-        res = ft.result()
-        self.assertIsInstance(res, dict)
-        self.assertEqual('key', res['@type'])
+        res_create_new_key = self.t.create_new_key(
+            local_password=self.local_password,
+            mnemonic=self.mn_phrase
+        ).result()
+        self.assertIsInstance(res_create_new_key, dict)
+        self.assertEqual('key', res_create_new_key['@type'])
 
-        ft = self.t.delete_key(public_key=res['public_key'])
-        res = ft.result()
-        self.assertIsInstance(res, dict)
-        self.assertEqual('ok', res['@type'])
+        self._delete_key(public_key=res_create_new_key['public_key'], secret=res_create_new_key['secret'])
 
     def test_export_key(self):
-        res1 = self._create_new_key()
+        res_create_new_key = self._create_new_key()
 
-        ft2 = self.t.export_key(
-            public_key=res1['public_key'],
-            secret=res1['secret'],
+        res_export_key = self.t.export_key(
+            public_key=res_create_new_key['public_key'],
+            secret=res_create_new_key['secret'],
             local_password=self.local_password
-        )
-        res2 = ft2.result()
-        self.assertIsInstance(res2, dict)
-        self.assertEqual('exportedKey', res2['@type'])
+        ).result()
+        self.assertIsInstance(res_export_key, dict)
+        self.assertEqual('exportedKey', res_export_key['@type'])
 
-        self._delete_key(res1['public_key'])
+        self._delete_key(public_key=res_create_new_key['public_key'], secret=res_create_new_key['secret'])
 
     def _test_export_pem_key(self):
-        res1 = self._create_new_key()
+        res_create_new_key = self._create_new_key()
 
-        ft2 = self.t.export_pem_key(
-            public_key=res1['public_key'],
-            secret=res1['secret'],
+        res_export_pem_key = self.t.export_pem_key(
+            public_key=res_create_new_key['public_key'],
+            secret=res_create_new_key['secret'],
             local_password=self.local_password,
             key_password=self.key_password
-        )
-        res2 = ft2.result()
-        self.assertIsInstance(res2, dict)
-        self.assertEqual('exportedKey', res2['@type'])
+        ).result()
+        self.assertIsInstance(res_export_pem_key, dict)
+        self.assertEqual('exportedKey', res_export_pem_key['@type'])
 
-        self._delete_key(res1['public_key'])
+        self._delete_key(public_key=res_create_new_key['public_key'], secret=res_create_new_key['secret'])
 
     def test_export_encrypted_key(self):
-        res1 = self._create_new_key()
+        res_create_new_key = self._create_new_key()
 
-        ft2 = self.t.export_encrypted_key(
-            public_key=res1['public_key'],
-            secret=res1['secret'],
+        res_export_encrypted_key = self.t.export_encrypted_key(
+            public_key=res_create_new_key['public_key'],
+            secret=res_create_new_key['secret'],
             local_password=self.local_password,
             key_password=self.key_password
-        )
-        res2 = ft2.result()
-        self.assertIsInstance(res2, dict)
-        self.assertEqual('exportedEncryptedKey', res2['@type'])
+        ).result()
+        self.assertIsInstance(res_export_encrypted_key, dict)
+        self.assertEqual('exportedEncryptedKey', res_export_encrypted_key['@type'])
 
-        self._delete_key(res1['public_key'])
+        self._delete_key(public_key=res_create_new_key['public_key'], secret=res_create_new_key['secret'])
 
-    def test_import_key(self):
-        ft = self.t.import_key(
+    def _test_import_key(self):
+        res_import_key = self.t.import_key(
             local_password=self.local_password,
             mnemonic_password=self.key_password,
             mnemonic=self.mn_phrase
-        )
-        res = ft.result()
-        print(res)
-        self.assertIsInstance(res, dict)
-        self.assertEqual('key', res['@type'])
+        ).result()
+        self.assertIsInstance(res_import_key, dict)
+        self.assertEqual('key', res_import_key['@type'])
 
-        self._delete_key(res['public_key'])
+        self._delete_key(public_key=res_import_key['public_key'], secret=res_import_key['secret'])
