@@ -49,27 +49,41 @@ class TestgiverTestCase(unittest.TestCase):
     mn_phrase = mn.to_mnemonic(unhexlify(vect)).split(' ')
     t = TonlibClientFutures(keystore=keystore)
 
-    def _test_testgiver_init(self):
-        res1 = self.t.create_new_key(
+    def test_testgiver_init(self):
+        res_create_new_key = self.t.create_new_key(
             local_password=self.local_password,
             mnemonic=self.mn_phrase
         ).result()
 
-        res2 = self.t.decrypt_key(
-            public_key=res1['public_key'],
-            secret=res1['secret'],
+        res_decrypt_key = self.t.decrypt_key(
+            public_key=res_create_new_key['public_key'],
+            secret=res_create_new_key['secret'],
             local_password=self.local_password
         ).result()
 
-        res3 = self.t.test_wallet_init(
-            public_key=res2['public_key'],
-            secret=res2['secret']
+        res_wallet_init = self.t.test_wallet_init(
+            public_key=res_decrypt_key['public_key'],
+            secret=res_decrypt_key['secret']
         ).result()
 
-        self.assertIsInstance(res3, dict)
-        self.assertEqual('ok', res3['@type'])
+        self.assertIsInstance(res_wallet_init, dict)
+        self.assertEqual('ok', res_wallet_init['@type'])
 
-        self.t.delete_key(res2['public_key'])
+        res_delete_new_key = self.t.delete_key(
+            public_key=res_create_new_key['public_key'],
+            secret=res_create_new_key['secret']
+        ).result()
+        self.assertIsInstance(res_delete_new_key, dict)
+        self.assertNotEqual('error', res_delete_new_key['@type'])
+
+        # don't forget to delete decrypted key too because there is no method to decrypt key only in memory
+        res_delete_decrypted_key = self.t.delete_key(
+            public_key=res_decrypt_key['public_key'],
+            secret=res_decrypt_key['secret']
+        ).result()
+        self.assertIsInstance(res_delete_decrypted_key, dict)
+        self.assertNotEqual('error', res_delete_decrypted_key['@type'])
+
 
     def test_testgiver_address_new_transaction(self):
         """
@@ -77,25 +91,25 @@ class TestgiverTestCase(unittest.TestCase):
             cannot be done at the moment of faucet exhaustion. Waiting for a new faucet address & and Grams on it :)
         """
         # create key
-        res_create = self.t.create_new_key(
+        res_create_new_key = self.t.create_new_key(
             local_password=self.local_password,
             mnemonic=self.mn_phrase
         ).result()
-        self.assertIsInstance(res_create, dict)
-        self.assertNotEqual('error', res_create['@type'])
+        self.assertIsInstance(res_create_new_key, dict)
+        self.assertNotEqual('error', res_create_new_key['@type'])
 
         # decrypt key to public key & secret
-        res_decrypt = self.t.decrypt_key(
-            public_key=res_create['public_key'],
-            secret=res_create['secret'],
+        res_decrypt_key = self.t.decrypt_key(
+            public_key=res_create_new_key['public_key'],
+            secret=res_create_new_key['secret'],
             local_password=self.local_password
         ).result()
-        self.assertIsInstance(res_create, dict)
-        self.assertNotEqual('error', res_decrypt['@type'])
+        self.assertIsInstance(res_create_new_key, dict)
+        self.assertNotEqual('error', res_decrypt_key['@type'])
 
         # convert public key to account address (testing in 0 chain)
         res_wallet_account_address = self.t.test_wallet_get_account_address(
-            public_key=res_decrypt['public_key']
+            public_key=res_decrypt_key['public_key']
         ).result()
         self.assertIsInstance(res_wallet_account_address, dict)
         self.assertNotEqual('error', res_wallet_account_address['@type'])
@@ -117,8 +131,8 @@ class TestgiverTestCase(unittest.TestCase):
 
         # init new test wallet specified by public key & secret
         res_test_wallet_init = self.t.test_wallet_init(
-            public_key=res_decrypt['public_key'],
-            secret=res_decrypt['secret']
+            public_key=res_decrypt_key['public_key'],
+            secret=res_decrypt_key['secret']
         ).result()
         self.assertIsInstance(res_test_wallet_init, dict)
         self.assertNotEqual('error', res_test_wallet_init['@type'])
@@ -130,8 +144,17 @@ class TestgiverTestCase(unittest.TestCase):
         self.assertIsInstance(res_test_wallet_get_account_state, dict)
         # self.assertNotEqual('error', res_test_wallet_init['@type'])
 
-        res_delete_key = self.t.delete_key(
-            public_key=res_decrypt['public_key']
+        res_delete_new_key = self.t.delete_key(
+            public_key=res_create_new_key['public_key'],
+            secret=res_create_new_key['secret']
         ).result()
-        self.assertIsInstance(res_delete_key, dict)
-        self.assertNotEqual('error', res_delete_key['@type'])
+        self.assertIsInstance(res_delete_new_key, dict)
+        self.assertNotEqual('error', res_delete_new_key['@type'])
+
+        # don't forget to delete decrypted key too because there is no method to decrypt key only in memory
+        res_delete_decrypted_key = self.t.delete_key(
+            public_key=res_decrypt_key['public_key'],
+            secret=res_decrypt_key['secret']
+        ).result()
+        self.assertIsInstance(res_delete_decrypted_key, dict)
+        self.assertNotEqual('error', res_delete_decrypted_key['@type'])
