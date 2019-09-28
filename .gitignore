@@ -112,3 +112,6 @@ venv.bak/
 .idea/modules.xml
 .idea/ton_client.iml
 .idea/vcs.xml
+
+## tonlib chaotically created temp blkstate files
+*.blkstate
