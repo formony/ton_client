@@ -1,6 +1,8 @@
 # ton_client
 
-Python API client for blockchain [Telegram Open Network](https://test.ton.org/download.html) liteclient protocol, which is based itself on [tdlib](https://github.com/tdlib/td) library.   
+Python API client for blockchain [Telegram Open Network](https://test.ton.org/download.html)
+
+[Website](https://www.formony.com/) | Telegram [News](https://t.me/formony_dev) | [Group](https://t.me/Formony_com)   
 
 [![CircleCI](https://img.shields.io/circleci/build/github/formony/ton_client)](https://circleci.com/gh/formony/ton_client)
 [![Coverage](https://img.shields.io/codecov/c/github/formony/ton_client/master.svg)](https://codecov.io/gh/formony/ton_client)
