@@ -84,7 +84,6 @@ class TestgiverTestCase(unittest.TestCase):
         self.assertIsInstance(res_delete_decrypted_key, dict)
         self.assertNotEqual('error', res_delete_decrypted_key['@type'])
 
-
     def test_testgiver_address_new_transaction(self):
         """
             Reference implementation of wallet operation using testgiver_ and test_wallet_ funcs. Due to asynchronous nature of TON the rest of test
