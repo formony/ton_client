@@ -54,7 +54,9 @@ class TonlibClientBase:
         :param ip: IPv4 address in dotted notation
         :param port: IPv4 TCP port
         :param key: base64 pub key of liteserver node
-        :param keystore: path to keystore on local filesystem
+        :param keystore: path to keystore on local filesystem on None for in-memory keystore. At the moment, in-memory keystore is almost useless
+            because randomness nature of thread pool of tonlibjson executors. It need to be completely rewritten using e.g. pep-0567 to support
+            some kind of affinity/statefulness between execution flow and thread. Otherwise, it might be simulated using threads=1
         :return: None
         """
         self._t_local.tonlib = Tonlib()
