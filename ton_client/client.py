@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import codecs
 import struct
 import socket
 import logging
@@ -87,8 +88,14 @@ class TonlibClientBase:
             '@type': 'init',
             'options': {
                 '@type': 'options',
-                'config': json.dumps(config_obj),
-                'keystore_directory': keystore
+                'config': {
+                    '@type': 'config',
+                    'config': json.dumps(config_obj)
+                },
+                'keystore_type': {
+                    '@type': 'keyStoreTypeDirectory',
+                    'directory': keystore
+                }
             }
         }
 
@@ -126,6 +133,86 @@ class TonlibClientBase:
         data = {
             '@type': 'testGiver.getAccountState'
         }
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def raw_get_transactions(self, account_address: str, from_transaction_lt: str, from_transaction_hash: str):
+        """
+        TL Spec:
+            raw.getTransactions account_address:accountAddress from_transaction_id:internal.transactionId = raw.Transactions;
+            accountAddress account_address:string = AccountAddress;
+            internal.transactionId lt:int64 hash:bytes = internal.TransactionId;
+        :param account_address: str with raw or user friendly address
+        :param from_transaction_lt: from transaction lt
+        :param from_transaction_hash: from transaction hash in HEX representation
+        :return: dict as
+            {
+                '@type': 'raw.transactions',
+                'transactions': list[dict as {
+                    '@type': 'raw.transaction',
+                    'utime': int,
+                    'data': str,
+                    'transaction_id': internal.transactionId,
+                    'fee': str,
+                    'in_msg': dict as {
+                        '@type': 'raw.message',
+                        'source': str,
+                        'destination': str,
+                        'value': str,
+                        'message': str
+                    },
+                    'out_msgs': list[dict as raw.message]
+                }],
+                'previous_transaction_id': internal.transactionId
+            }
+        """
+        if len(account_address.split(':')) == 2:
+            account_address = raw_to_userfriendly(account_address)
+
+        from_transaction_hash = codecs.encode(codecs.decode(from_transaction_hash, 'hex'), 'base64').decode().replace("\n", "")
+
+        data = {
+            '@type': 'raw.getTransactions',
+            'account_address': {
+              'account_address': account_address,
+            },
+            'from_transaction_id': {
+                '@type': 'internal.transactionId',
+                'lt': from_transaction_lt,
+                'hash': from_transaction_hash
+            }
+        }
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def raw_get_account_state(self, address: str):
+        """
+        TL Spec:
+            raw.getAccountState account_address:accountAddress = raw.AccountState;
+            accountAddress account_address:string = AccountAddress;
+        :param address: str with raw or user friendly address
+        :return: dict as
+            {
+                '@type': 'raw.accountState',
+                'balance': str,
+                'code': str,
+                'data': str,
+                'last_transaction_id': internal.transactionId,
+                'sync_utime': int
+            }
+        """
+        if len(address.split(':')) == 2:
+            address = raw_to_userfriendly(address)
+
+        data = {
+            '@type': 'raw.getAccountState',
+            'account_address': {
+                'account_address': address
+            }
+        }
+
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
 
