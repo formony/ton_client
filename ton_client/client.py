@@ -226,7 +226,77 @@ class TonlibClientBase:
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
 
-# TODO testGiver.sendGrams destination:accountAddress seqno:int32 amount:int64 = Ok;
+    # TODO testGiver.sendGrams destination:accountAddress seqno:int32 amount:int64 = Ok;
+
+    @parallelize
+    def wallet_init(self, public_key, secret):
+        """
+        TL Spec:
+            wallet.init private_key:inputKey = Ok;
+            key public_key:string secret:secureBytes = Key;
+            inputKey key:key local_password:secureBytes = InputKey;
+        :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
+        :param secret: str of base64 encoded secret as packed by e.g. create_new_key() or decrypt_key()
+        :return:
+        """
+        data = {
+            '@type': 'wallet.init',
+            'private_key': {
+                'key': {
+                    'public_key': public_key,
+                    'secret': secret
+                }
+            }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def wallet_get_account_address(self, public_key):
+        """
+        Specific method for getting address from public key. In contrast to Ethereum and many other blockchains,
+        there is no 1-to-1 match between address and public key except this tonlib's internally hardcoded algorithm
+        TL Spec:
+            wallet.getAccountAddress initital_account_state:wallet.initialAccountState = AccountAddress;
+            wallet.initialAccountState public_key:string = wallet.InitialAccountState;
+            accountAddress account_address:string = AccountAddress;
+        :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
+        :return:
+        """
+        data = {
+            '@type': 'wallet.getAccountAddress',
+            'initital_account_state': {
+                'public_key': public_key
+            }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def wallet_get_account_state(self, address: str):
+        """
+        TL Spec:
+            wallet.getAccountState account_address:accountAddress = wallet.AccountState;
+            wallet.accountState balance:int64 seqno:int32 last_transaction_id:internal.transactionId sync_utime:int53 = wallet.AccountState;
+            internal.transactionId lt:int64 hash:bytes = internal.TransactionId;
+            accountAddress account_address:string = AccountAddress;
+        :param address: str with raw or user friendly address
+        :return:
+        """
+        if len(address.split(':')) == 2:
+            address = raw_to_userfriendly(address)
+
+        data = {
+            '@type': 'wallet.getAccountState',
+            'account_address': {
+                'account_address': address
+            }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
 
     @parallelize
     def create_new_key(self, local_password, mnemonic, random_extra_seed=''):
