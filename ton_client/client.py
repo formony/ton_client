@@ -46,7 +46,7 @@ class TonlibClientBase:
             initargs=(ip, port, key, keystore)
         )
 
-    def init_tonlib_thread(self, ip, port, key, keystore):
+    def init_tonlib_thread(self, ip, port, key, keystore=None):
         """
         TL Spec
             init options:options = Ok;
@@ -84,6 +84,16 @@ class TonlibClientBase:
             'validator': config_vl_obj
         }
 
+        if keystore:
+            keystore_obj = {
+                '@type': 'keyStoreTypeDirectory',
+                'directory': keystore
+            }
+        else:
+            keystore_obj = {
+                '@type': 'keyStoreTypeInMemory'
+            }
+
         data = {
             '@type': 'init',
             'options': {
@@ -92,10 +102,7 @@ class TonlibClientBase:
                     '@type': 'config',
                     'config': json.dumps(config_obj)
                 },
-                'keystore_type': {
-                    '@type': 'keyStoreTypeDirectory',
-                    'directory': keystore
-                }
+                'keystore_type': keystore_obj
             }
         }
 
