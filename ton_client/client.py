@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import asyncio
 import functools
+from datetime import datetime, timezone
 
 import ujson as json
 from .tonlib import Tonlib
@@ -316,6 +317,49 @@ class TonlibClientBase:
             'account_address': {
                 'account_address': address
             }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def wallet_send_grams(self, public_key, secret, dest_address, seq_no: int, valid_until: datetime, amount, message=''):
+        """
+        TL Spec
+            wallet.sendGrams private_key:inputKey destination:accountAddress seqno:int32 valid_until:int53 amount:int64 message:bytes
+                = SendGramsResult;
+            inputKey key:key local_password:secureBytes = InputKey;
+            key public_key:string secret:secureBytes = Key;
+            accountAddress account_address:string = AccountAddress;
+            sendGramsResult sent_until:int53 = SendGramsResult;
+        :param public_key:
+        :param secret:
+        :param dest_address:
+        :param seq_no:
+        :param valid_until:
+        :param amount:
+        :param message:
+        :return:
+        """
+        if valid_until.tzname() is None:
+            valid_until = datetime.replace(tzinfo=timezone.utc)
+        valid_until_ts = valid_until.timestamp()
+
+        data = {
+            '@type': 'wallet.sendGrams',
+            'private_key': {
+                'key': {
+                    'public_key': public_key,
+                    'secret': secret
+                }
+            },
+            'destination': {
+                'account_address': dest_address
+            },
+            'seqno': seq_no,
+            'valid_until': valid_until_ts,
+            'amount': amount,
+            'message': message
         }
 
         r = self._t_local.tonlib.ton_async_execute(data)
