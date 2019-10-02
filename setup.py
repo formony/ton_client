@@ -27,5 +27,5 @@ setup(
     },
     zip_safe=True,
     tests_require=test_requirements,
-    python_requires='>=3.6'
+    python_requires='>=3.7'
 )
