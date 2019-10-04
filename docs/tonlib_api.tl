@@ -38,9 +38,9 @@ unpackedAccountAddress workchain_id:int32 bounceable:Bool testnet:Bool addr:byte
 internal.transactionId lt:int64 hash:bytes = internal.TransactionId;
 
 raw.initialAccountState code:bytes data:bytes = raw.InitialAccountState;
-raw.accountState balance:int64 code:bytes data:bytes last_transaction_id:internal.transactionId sync_utime:int53 = raw.AccountState;
-raw.message source:string destination:string value:int64 message:bytes = raw.Message;
-raw.transaction utime:int53 data:bytes transaction_id:internal.transactionId fee:int64 in_msg:raw.message out_msgs:vector<raw.message> = raw.Transaction;
+raw.accountState balance:int64 code:bytes data:bytes last_transaction_id:internal.transactionId frozen_hash:bytes sync_utime:int53 = raw.AccountState;
+raw.message source:string destination:string value:int64 fwd_fee:int64 ihr_fee:int64 created_lt:int64 body_hash:bytes message:bytes = raw.Message;
+raw.transaction utime:int53 data:bytes transaction_id:internal.transactionId fee:int64 storage_fee:int64 other_fee:int64 in_msg:raw.message out_msgs:vector<raw.message> = raw.Transaction;
 raw.transactions transactions:vector<raw.transaction> previous_transaction_id:internal.transactionId = raw.Transactions;
 
 testWallet.initialAccountState public_key:string = testWallet.InitialAccountState;
@@ -51,7 +51,7 @@ wallet.accountState balance:int64 seqno:int32 last_transaction_id:internal.trans
 
 testGiver.accountState balance:int64 seqno:int32 last_transaction_id:internal.transactionId sync_utime:int53= testGiver.AccountState;
 
-uninited.accountState balance:int64 last_transaction_id:internal.transactionId sync_utime:int53 = uninited.AccountState;
+uninited.accountState balance:int64 last_transaction_id:internal.transactionId frozen_hash:bytes sync_utime:int53 = uninited.AccountState;
 
 //generic.initialAccountStateRaw initital_account_state:raw.initialAccountState = generic.InitialAccountState;
 //generic.initialAccountStateTestWallet initital_account_state:testWallet.initialAccountState = generic.InitialAccountState;
@@ -63,7 +63,7 @@ generic.accountStateWallet account_state:wallet.accountState = generic.AccountSt
 generic.accountStateTestGiver account_state:testGiver.accountState = generic.AccountState;
 generic.accountStateUninited account_state:uninited.accountState = generic.AccountState;
 
-sendGramsResult sent_until:int53 = SendGramsResult;
+sendGramsResult sent_until:int53 body_hash:bytes = SendGramsResult;
 
 updateSendLiteServerQuery id:int64 data:bytes = Update;
 
@@ -85,6 +85,8 @@ logVerbosityLevel verbosity_level:int32 = LogVerbosityLevel;
 //@description Contains a list of available TDLib internal log tags @tags List of log tags
 logTags tags:vector<string> = LogTags;
 
+data bytes:secureBytes = Data;
+
 ---functions---
 
 init options:options = Ok;
@@ -94,6 +96,7 @@ options.setConfig config:config = Ok;
 
 createNewKey local_password:secureBytes mnemonic_password:secureBytes random_extra_seed:secureBytes = Key;
 deleteKey key:key = Ok;
+deleteAllKeys = Ok;
 exportKey input_key:inputKey = ExportedKey;
 exportPemKey input_key:inputKey key_password:secureBytes = ExportedPemKey;
 exportEncryptedKey input_key:inputKey key_password:secureBytes = ExportedEncryptedKey;
@@ -101,6 +104,10 @@ importKey local_password:secureBytes mnemonic_password:secureBytes exported_key:
 importPemKey local_password:secureBytes key_password:secureBytes exported_key:exportedPemKey = Key;
 importEncryptedKey local_password:secureBytes key_password:secureBytes exported_encrypted_key:exportedEncryptedKey = Key;
 changeLocalPassword input_key:inputKey new_local_password:secureBytes = Key;
+
+encrypt decrypted_data:secureBytes secret:secureBytes = Data;
+decrypt encrypted_data:secureBytes secret:secureBytes = Data;
+kdf password:secureBytes salt:secureBytes iterations:int32 = Data;
 
 unpackAccountAddress account_address:string = UnpackedAccountAddress;
 packAccountAddress account_address:unpackedAccountAddress = AccountAddress;
