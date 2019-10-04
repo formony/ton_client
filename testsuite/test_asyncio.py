@@ -7,7 +7,7 @@ import os
 import uvloop
 
 from ton_client.client import TonlibClientAsyncio
-from ton_client.utils import coro_result, raw_to_userfriendly
+from ton_client.utils import coro_result, raw_to_userfriendly  # noqa: F401
 
 uvloop.install()
 
