@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import functools
 import base64
 import asyncio
 import struct
@@ -24,6 +25,18 @@ def pubkey_b64_to_hex(b64_key):
     return name.hex().upper()
 
 
+def parallelize(f):
+    @functools.wraps(f)
+    def wrapper(self, *args, **kwds):
+        if self._style == 'futures':
+            return self._executor.submit(f, self, *args, **kwds)
+        if self._style == 'asyncio':
+            loop = asyncio.get_event_loop()
+            return loop.run_in_executor(self._executor, functools.partial(f, self, *args, **kwds))
+        raise RuntimeError(self._style)
+    return wrapper
+
+
 def coro_result(coro):
     return asyncio.get_event_loop().run_until_complete(coro)
 
@@ -38,11 +51,11 @@ def raw_to_userfriendly(address, tag=0x11):
     crc = crc16.crc16xmodem(payload)
 
     e_key = payload + struct.pack('>H', crc)
-    return base64.b64encode(e_key).decode("utf-8")
+    return base64.urlsafe_b64encode(e_key).decode("utf-8")
 
 
 def userfriendly_to_raw(address):
-    k = base64.b64decode(address)[1:34]
+    k = base64.urlsafe_b64decode(address)[1:34]
     workchain_id = struct.unpack('b', k[:1])[0]
     key = k[1:].hex().upper()
     return f'{workchain_id}:{key}'

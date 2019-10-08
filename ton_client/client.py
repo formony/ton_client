@@ -6,27 +6,13 @@ import socket
 import logging
 from concurrent.futures import ThreadPoolExecutor
 import threading
-import asyncio
-import functools
 from datetime import datetime, timezone
 
 import ujson as json
 from .tonlib import Tonlib
-from .utils import str_b64encode, raw_to_userfriendly
+from .utils import str_b64encode, raw_to_userfriendly, parallelize
 
 logger = logging.getLogger(__name__)
-
-
-def parallelize(f):
-    @functools.wraps(f)
-    def wrapper(self, *args, **kwds):
-        if self._style == 'futures':
-            return self._executor.submit(f, self, *args, **kwds)
-        if self._style == 'asyncio':
-            loop = asyncio.get_event_loop()
-            return loop.run_in_executor(self._executor, functools.partial(f, self, *args, **kwds))
-        raise RuntimeError(self._style)
-    return wrapper
 
 
 class TonlibClientBase:
