@@ -34,7 +34,7 @@ jobs:
 
       - run:
           command: |
-            python setup.py test
+           pipenv run pytest testsuite
       - store_test_results:
           path: test-results
       - store_artifacts:

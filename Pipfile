@@ -7,6 +7,8 @@ verify_ssl = true
 pipenv = ">=2018.11.26"
 flake8 = ">=3.7.8"
 wheel = ">=0.33.6"
+pytest = "*"
+v = {editable = true,version = "*"}
 
 [packages]
 ed25519 = "~=1.5"
