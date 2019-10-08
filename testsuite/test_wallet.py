@@ -24,9 +24,6 @@ class TestgiverTestCase(unittest.TestCase):
         self.assertIsInstance(res_decrypt_key, dict)
         decrypted_public_key = res_decrypt_key['public_key']
         decrypted_secret = res_decrypt_key['secret']
-        print(decrypted_public_key, decrypted_secret)
-        decrypted_public_key = 'Pub3Dt+JCpOPtuOqZHWLmsb7mIHU5JG3MHIcrojzQ/N5TmfL'
-        decrypted_secret = 'ApnH0qQfVfAgALjabbr6R7BxqsG4kNWTVOcTZEvHIWM='
 
         res_wallet_init = self.t.wallet_init(
             public_key=decrypted_public_key,

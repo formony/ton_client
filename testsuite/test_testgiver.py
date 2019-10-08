@@ -7,13 +7,14 @@ import os
 from mnemonic import Mnemonic
 
 from ton_client.client import TonlibClientFutures
-from ton_client.utils import raw_to_userfriendly
+from ton_client.utils import raw_to_userfriendly  # noqa: F401
 
 proj_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 
 
 class ClientOfflineTestCase(unittest.TestCase):
     testgiver_address = raw_to_userfriendly('-1:FCB91A3A3816D0F7B8C2C76108B8A9BC5A6B7A55BD79F8AB101C52DB29232260', 0x91)
+    # testgiver_address = 'kf_8uRo6OBbQ97jCx2EIuKm8Wmt6Vb15-KsQHFLbKSMiYIny'
 
     def test_testgiver_getaccount_address(self):
         t = TonlibClientFutures()
@@ -61,7 +62,7 @@ class TestgiverTestCase(unittest.TestCase):
             local_password=self.local_password
         ).result()
 
-        res_wallet_init = self.t.test_wallet_init(
+        res_wallet_init = self.t.wallet_init(
             public_key=res_decrypt_key['public_key'],
             secret=res_decrypt_key['secret']
         ).result()
@@ -107,7 +108,7 @@ class TestgiverTestCase(unittest.TestCase):
         self.assertNotEqual('error', res_decrypt_key['@type'])
 
         # convert public key to account address (testing in 0 chain)
-        res_wallet_account_address = self.t.test_wallet_get_account_address(
+        res_wallet_account_address = self.t.wallet_get_account_address(
             public_key=res_decrypt_key['public_key']
         ).result()
         self.assertIsInstance(res_wallet_account_address, dict)
@@ -117,6 +118,8 @@ class TestgiverTestCase(unittest.TestCase):
 
         # get current state of faucet (we need seq number)
         res_testgiver_account_state = self.t.testgiver_getaccount_state().result()
+        self.assertIsInstance(res_testgiver_account_state, dict)
+        self.assertEqual('testGiver.accountState', res_testgiver_account_state['@type'])
 
         # send grams from faucet to uninitialized wallet
         res_testgiver_send_grams = self.t.testgiver_send_grams(
@@ -126,10 +129,10 @@ class TestgiverTestCase(unittest.TestCase):
         ).result()
         self.assertIsInstance(res_testgiver_send_grams, dict)
         self.assertNotEqual('error', res_testgiver_send_grams['@type'])
-        self.assertEqual('ok', res_testgiver_send_grams['@type'])
+        self.assertEqual('sendGramsResult', res_testgiver_send_grams['@type'])
 
         # init new test wallet specified by public key & secret
-        res_test_wallet_init = self.t.test_wallet_init(
+        res_test_wallet_init = self.t.wallet_init(
             public_key=res_decrypt_key['public_key'],
             secret=res_decrypt_key['secret']
         ).result()
@@ -137,7 +140,7 @@ class TestgiverTestCase(unittest.TestCase):
         self.assertNotEqual('error', res_test_wallet_init['@type'])
         self.assertEqual('ok', res_test_wallet_init['@type'])
 
-        res_test_wallet_get_account_state = self.t.test_wallet_get_account_state(
+        res_test_wallet_get_account_state = self.t.wallet_get_account_state(
             address=account_address
         ).result()
         self.assertIsInstance(res_test_wallet_get_account_state, dict)

@@ -15,8 +15,8 @@ proj_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 
 
 class TonlibTestAsyncCase1(unittest.TestCase):
-    # testgiver_address = raw_to_userfriendly('-1:FCB91A3A3816D0F7B8C2C76108B8A9BC5A6B7A55BD79F8AB101C52DB29232260', 0x91)
-    testgiver_address = 'kf_8uRo6OBbQ97jCx2EIuKm8Wmt6Vb15-KsQHFLbKSMiYIny'
+    testgiver_address = raw_to_userfriendly('-1:FCB91A3A3816D0F7B8C2C76108B8A9BC5A6B7A55BD79F8AB101C52DB29232260', 0x91)
+    # testgiver_address = 'kf_8uRo6OBbQ97jCx2EIuKm8Wmt6Vb15-KsQHFLbKSMiYIny'
 
     def test_testgiver_getaccount_address(self):
         t = TonlibClientAsyncio()
