@@ -4,7 +4,7 @@ setup: setup-pipenv setup-commands
 
 setup-dev: setup-pipenv setup-dev-commands
 
-clean: clean-venv clean-setuppy
+clean: clean-venv clean-setuppy clean-tonlib
 
 setup-pipenv:
 ifeq (, $(shell which pipenv))
@@ -27,6 +27,9 @@ clean-setuppy:
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
+
+clean-tonlib:
+	find ./* -name *.blkstate | xargs rm -rf
 
 bdist-wheel: setup-dev
 	pipenv run python setup.py bdist_wheel
