@@ -65,4 +65,4 @@ def userfriendly_to_raw(address):
 
 
 def str_b64encode(s):
-    return base64.b64encode(s.encode('utf-8')).decode('utf-8')
+    return base64.b64encode(s.encode('utf-8')).decode('utf-8') if s and isinstance(s, str) else None

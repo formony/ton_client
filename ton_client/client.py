@@ -351,7 +351,7 @@ class TonlibClientBase:
         return r
 
     @parallelize
-    def create_new_key(self, local_password, mnemonic, random_extra_seed=''):
+    def create_new_key(self, mnemonic, random_extra_seed=None, local_password=None):
         """
         TL Spec:
             createNewKey local_password:secureBytes mnemonic_password:secureBytes = Key;
@@ -405,7 +405,7 @@ class TonlibClientBase:
         return r
 
     @parallelize
-    def export_key(self, public_key, secret, local_password):
+    def export_key(self, public_key, secret, local_password=None):
         """
         TL Spec:
             exportKey input_key:inputKey = ExportedKey;
@@ -437,7 +437,7 @@ class TonlibClientBase:
         return r
 
     @parallelize
-    def import_pem_key(self, pem, local_password, key_password):
+    def import_pem_key(self, pem, local_password=None, key_password=None):
         """
         !Not supported yet!
          TL Spec:
@@ -467,7 +467,7 @@ class TonlibClientBase:
         return r
 
     @parallelize
-    def export_pem_key(self, public_key, secret, local_password, key_password):
+    def export_pem_key(self, public_key, secret, local_password=None, key_password=None):
         """
         !Not supported yet!
          TL Spec:
@@ -501,7 +501,7 @@ class TonlibClientBase:
         return r
 
     @parallelize
-    def export_encrypted_key(self, public_key, secret, local_password, key_password):
+    def export_encrypted_key(self, public_key, secret, local_password=None, key_password=None):
         """
          TL Spec:
             exportEncryptedKey input_key:inputKey key_password:secureBytes = ExportedEncryptedKey;
@@ -534,7 +534,7 @@ class TonlibClientBase:
         return r
 
     @parallelize
-    def import_encrypted_key(self, encrypted_key, local_password, key_password):
+    def import_encrypted_key(self, encrypted_key, local_password=None, key_password=None):
         """
          TL Spec:
             importEncryptedKey local_password:secureBytes key_password:secureBytes exported_encrypted_key:exportedEncryptedKey = Key;
@@ -563,7 +563,7 @@ class TonlibClientBase:
         return r
 
     @parallelize
-    def import_key(self, local_password, mnemonic_password, mnemonic):
+    def import_key(self, mnemonic_password, local_password=None, mnemonic=None):
         """
         TL Spec:
             importKey local_password:secureBytes mnemonic_password:secureBytes exported_key:exportedKey = Key;
