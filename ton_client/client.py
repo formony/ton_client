@@ -24,11 +24,11 @@ class TonlibClientBase:
             ip='67.207.74.182',
             port=4924,
             key='peJTw/arlRfssgTuf9BMypJzqOi7SXEqSPSWiEw2U1M=',
-            keystore='./',
+            keystore=None,
             threads=10
     ):
         self._executor = ThreadPoolExecutor(
-            max_workers=threads,
+            max_workers=threads if keystore is not None else 1,  # one thread in case of in-memory keystore
             initializer=self.init_tonlib_thread,
             initargs=(ip, port, key, keystore)
         )
