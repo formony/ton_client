@@ -438,31 +438,34 @@ class TonlibClientBase:
         return r
 
     @parallelize
-    def import_pem_key(self, pem_key, local_password, key_password):
+    def import_pem_key(self, pem, local_password, key_password):
         """
         !Not supported yet!
          TL Spec:
             importPemKey local_password:secureBytes key_password:secureBytes exported_key:exportedPemKey = Key;
             key public_key:bytes secret:secureBytes = Key;
             exportedPemKey pem:secureString = ExportedPemKey;
-        :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
-        :param secret: str of base64 encoded secret as packed by e.g. create_new_key() or decrypt_key()
-        :param local_password: string
-        :param key_password: key to encrypt resulting PEM itself
-        :return:
+        :param pem: str of PEM key (starting with -----BEGIN ENCRYPTED PRIVATE KEY-----)
+        :param local_password: str of key to encrypt on-disk key stored in keystore (even in-memory)
+        :param key_password: str of key to decrypt input PEM itself
+        :return: dict as
+            {
+                '@type': 'key',
+                'public_key': str of base64 encoded public key,
+                'secret': str of base64 encoded secret
+            }
         """
         data = {
             '@type': 'importPemKey',
             'key_password': str_b64encode(key_password),
             'local_password': str_b64encode(local_password),
             'exported_key': {
-                'pem': pem_key
+                'pem': pem
             }
         }
 
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
-
 
     @parallelize
     def export_pem_key(self, public_key, secret, local_password, key_password):
@@ -475,9 +478,13 @@ class TonlibClientBase:
             exportedPemKey pem:secureString = ExportedPemKey;
         :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
         :param secret: str of base64 encoded secret as packed by e.g. create_new_key() or decrypt_key()
-        :param local_password: string
+        :param local_password: str of key to decrypt on-disk key stored in keystore (even in-memory)
         :param key_password: key to encrypt resulting PEM itself
-        :return:
+        :return: dict as
+            {
+                '@type': 'exportedPemKey',
+                'pem': str of PEM key (starting with -----BEGIN ENCRYPTED PRIVATE KEY-----) encrypted with key_password
+            }
         """
         data = {
             '@type': 'exportPemKey',

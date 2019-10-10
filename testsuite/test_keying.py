@@ -84,7 +84,7 @@ class ClientKeyingTestCase(unittest.TestCase):
         self._delete_key(public_key=res_create_new_key['public_key'], secret=res_create_new_key['secret'])
 
         res_import_pem_key = self.t.import_pem_key(
-            pem_key=res_export_pem_key['pem'],
+            pem=res_export_pem_key['pem'],
             key_password=self.key_password,
             local_password=self.local_password
         ).result()
