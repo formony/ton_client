@@ -511,9 +511,13 @@ class TonlibClientBase:
             exportedEncryptedKey data:secureBytes = ExportedEncryptedKey;
         :param public_key: str of base64 encoded public key as packed by e.g. create_new_key() or decrypt_key()
         :param secret: str of base64 encoded secret as packed by e.g. create_new_key() or decrypt_key()
-        :param local_password: string
-        :param key_password: key to encrypt resulting PEM itself
-        :return:
+        :param local_password: str of key to decrypt on-disk key stored in keystore (even in-memory)
+        :param key_password: key to encrypt resulting key itself
+        :return: dict as
+            {
+                '@type': 'exportedEncryptedKey',
+                'data': str of base64 encoded key which is previously encrypted with key_password
+            }
         """
         data = {
             '@type': 'exportEncryptedKey',
@@ -524,6 +528,35 @@ class TonlibClientBase:
                     'public_key': public_key,
                     'secret': secret
                 }
+            }
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
+    @parallelize
+    def import_encrypted_key(self, encrypted_key, local_password, key_password):
+        """
+         TL Spec:
+            importEncryptedKey local_password:secureBytes key_password:secureBytes exported_encrypted_key:exportedEncryptedKey = Key;
+            key public_key:bytes secret:secureBytes = Key;
+            exportedEncryptedKey data:secureBytes = ExportedEncryptedKey;
+        :param encrypted_key: str of base64 encoded key which is also previously encrypted with key_password
+        :param local_password: str of key to encrypt on-disk key stored in keystore (even in-memory)
+        :param key_password: key to decrypt encrypted key itself
+        :return: dict as
+            {
+                '@type': 'key',
+                'public_key': str of base64 encoded public key,
+                'secret': str of base64 encoded secret
+            }
+        """
+        data = {
+            '@type': 'importEncryptedKey',
+            'key_password': str_b64encode(key_password),
+            'local_password': str_b64encode(local_password),
+            'exported_encrypted_key': {
+                'data': encrypted_key
             }
         }
 
