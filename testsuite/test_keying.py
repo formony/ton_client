@@ -144,9 +144,6 @@ class ClientKeyingTestCase(unittest.TestCase):
 
         self._delete_key(public_key=res_create_new_key['public_key'], secret=res_create_new_key['secret'])
 
-        import base64
-        de = base64.b64decode(res_export_encrypted_key['data'])
-
         res_import_encrypted_key = self.t.import_encrypted_key(
             encrypted_key=res_export_encrypted_key['data'],
         ).result()
