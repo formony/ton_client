@@ -55,7 +55,7 @@ class ClientKeyingTestCase(unittest.TestCase):
 
         self._delete_key(public_key=res_create_new_key['public_key'], secret=res_create_new_key['secret'])
 
-    def _test_export_pem_key(self):
+    def test_export_pem_key(self):
         res_create_new_key = self._create_new_key()
 
         res_export_pem_key = self.t.export_pem_key(
@@ -65,7 +65,7 @@ class ClientKeyingTestCase(unittest.TestCase):
             key_password=self.key_password
         ).result()
         self.assertIsInstance(res_export_pem_key, dict)
-        self.assertEqual('exportedKey', res_export_pem_key['@type'])
+        self.assertEqual('exportedPemKey', res_export_pem_key['@type'])
 
         self._delete_key(public_key=res_create_new_key['public_key'], secret=res_create_new_key['secret'])
 
