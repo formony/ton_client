@@ -95,8 +95,7 @@ class TonlibClientBase:
             }
         }
 
-        r = self._t_local.tonlib.ton_async_execute(data)
-        logging.debug(f'_init_lib() with query \'{data}\' and result {r}')
+        self._t_local.tonlib.ton_async_execute(data)
 
     @parallelize
     def testgiver_getaccount_address(self):

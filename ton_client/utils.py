@@ -8,11 +8,14 @@ import struct
 import crc16
 
 
+class TonLibWrongResult(Exception):
+    pass
+
+
 def pubkey_b64_to_hex(b64_key):
     """
     Convert tonlib's pubkey in format f'I{"H"*16}' i.e. prefix:key to upperhex filename as it stored in keystore
     :param b64_key: base64 encoded 36 bytes of public key
-    :param drop_prefix: drop first 2 bytes of prefix
     :return:
     """
     bin_key = base64.b64decode(b64_key)
