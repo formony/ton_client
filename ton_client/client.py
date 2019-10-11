@@ -626,6 +626,18 @@ class TonlibClientBase:
         r = self._t_local.tonlib.ton_async_execute(data)
         return r
 
+    @parallelize
+    def external_kdf(self, password, salt, iterations):
+        data = {
+            '@type': 'kdf',
+            'password': str_b64encode(password),
+            'salt': str_b64encode(salt),
+            'iterations': iterations
+        }
+
+        r = self._t_local.tonlib.ton_async_execute(data)
+        return r
+
 
 class TonlibClientFutures(TonlibClientBase):
     _style = 'futures'
