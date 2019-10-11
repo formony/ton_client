@@ -16,6 +16,7 @@ ujson = ">=1.35"
 uvloop = "*"
 mnemonic = "*"
 crc16 = "*"
+pycryptodome = "*"
 
 [requires]
 python_version = "3.7"
