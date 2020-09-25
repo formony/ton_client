@@ -14,7 +14,7 @@ clean: clean-venv clean-build clean-pytest clean-tonlib
 
 setup-poetry:
 ifeq (, $(shell which pipenv))
-	pip3 install poetry
+	pip3 install --pre poetry
 endif
 
 setup-env38:
