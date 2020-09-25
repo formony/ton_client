@@ -1,2 +1,26 @@
+[tool]
+[tool.poetry]
+name = "ton_client"
+description = ""
+authors = ["Oleg Gaidukov <ogaidukov@gmail.com>"]
+version = "0.5"
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+crc16 = "*"
+ed25519 = "==1.*,>=1.5.0"
+mnemonic = "*"
+pycryptodome = "*"
+ujson = ">=1.35"
+uvloop = "*"
+
+[tool.poetry.dev-dependencies]
+flake8 = ">=3.7.8"
+pipenv = ">=2018.11.26"
+pytest = "*"
+v = "*"
+wheel = ">=0.33.6"
+
 [build-system]
-requires = ["setuptools", "wheel", "pipfile"]
+requires = ["poetry-core>=1.0.0a5"]
+build-backend = "poetry.core.masonry.api"

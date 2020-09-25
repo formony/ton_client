@@ -15,7 +15,7 @@ Telegram [News](https://t.me/Formony_news) |
 This client works with Python 3.7 only.
 
 Prerequisites: 
-* [Pipfile](https://github.com/pypa/pipfile)
+* [Poetry](https://python-poetry.org/)
 
 * ton_client is been shipped with prebuilt fullnode's client library for Ubuntu Xenial & latest macOS. 
 In case of incompatibility with your distro it's needed to build TON fullnode's libtonlibjson.so / libtonlibjson.dylib depends on archtecture. 
@@ -26,7 +26,7 @@ ton_client hasn't been published to PyPI yet so build and install it on your own
 
 `git clone https://github.com/formony/ton_client.git`
 
-`make setup-all && python ./setup.py install`
+`make test build`
 
 ## To be done
 

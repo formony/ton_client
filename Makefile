@@ -1,35 +1,52 @@
 setup-all: setup setup-dev
 
-setup: setup-pipenv setup-commands
+setup: setup-poetry setup-commands
 
-setup-dev: setup-pipenv setup-dev-commands
+setup-dev: setup-poetry setup-dev-commands
 
-clean: clean-venv clean-setuppy clean-tonlib
+setup-env: setup-env38
 
-setup-pipenv:
+build: build-wheel
+
+test: test-flake8 test-pytest
+
+clean: clean-venv clean-build clean-pytest clean-tonlib
+
+setup-poetry:
 ifeq (, $(shell which pipenv))
-	pip install pipenv
+	pip3 install poetry
 endif
 
+setup-env38:
+	# might be incompatible in arbitrary environment
+	poetry env use python3.8
+
 setup-dev-commands:
-	PIPENV_VENV_IN_PROJECT=1 PIPENV_IGNORE_VIRTUALENVS=1 $(make) pipenv install --dev
+	$(make) poetry install
 
 setup-commands:
-	PIPENV_VENV_IN_PROJECT=1 PIPENV_IGNORE_VIRTUALENVS=1 $(make) pipenv install
+	$(make) poetry install --no-dev
+
+test-flake8:
+	poetry run flake8 ton_client testsuite
+
+test-pytest:
+	poetry run pytest
 
 activate:
-	pipenv shell
+	poetry shell
 
 clean-venv:
 	rm -rf .venv
 
-clean-setuppy:
-	rm -rf build
+clean-build:
 	rm -rf dist
-	rm -rf *.egg-info
+
+clean-pytest:
+	rm -rf .pytest_cache
 
 clean-tonlib:
 	find ./* -name *.blkstate | xargs rm -rf
 
-bdist-wheel: setup-dev
-	pipenv run python setup.py bdist_wheel
+build-wheel: setup-dev
+	poetry build
