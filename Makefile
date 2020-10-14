@@ -8,7 +8,7 @@ clean: clean-venv clean-setuppy clean-tonlib
 
 setup-pipenv:
 ifeq (, $(shell which pipenv))
-	pip install pipenv
+	pip install "pipenv>=2020.8.13"
 endif
 
 setup-dev-commands:

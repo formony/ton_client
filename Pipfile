@@ -4,22 +4,22 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pipenv = ">=2018.11.26"
-flake8 = ">=3.7.8"
-wheel = ">=0.33.6"
-pytest = "*"
-v = {editable = true,version = "*"}
+pipenv = ">=2020.8.13"
+flake8 = "~=3.8"
+wheel = "~=0.35"
+pytest = "~=6.1"
+v = "*"
 
 [packages]
 ed25519 = "~=1.5"
-ujson = ">=1.35"
-uvloop = "*"
-mnemonic = "*"
-crc16 = "*"
-pycryptodome = "*"
+ujson = "~=4.0"
+uvloop = "~=0.14"
+mnemonic = ">=0.19"
+crc16 = "==0.1.1"
+pycryptodome = "~=3.8"
 
 [requires]
 python_version = "3.7"
 
 [pipenv]
-allow_prereleases = true
+allow_prereleases = false
