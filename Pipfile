@@ -12,7 +12,7 @@ v = "*"
 
 [packages]
 ed25519 = "~=1.5"
-ujson = "~=4.0"
+ujson = "~=5.4"
 uvloop = "~=0.14"
 mnemonic = ">=0.19"
 crc16 = "==0.1.1"
